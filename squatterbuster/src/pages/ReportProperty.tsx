@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import axios from 'axios';
+
+const containerStyle = {
+  width: '100%',
+  height: '400px'
+};
 
 const ReportProperty: React.FC = () => {
   const [address, setAddress] = useState('');
   const [issue, setIssue] = useState('');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<File[]>([]);
+  const [position, setPosition] = useState<{ lat: number, lng: number }>({ lat: 40.416775, lng: -3.703790 }); // Coordenadas iniciales (Madrid, España)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,6 +22,26 @@ const ReportProperty: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setImages([...images, ...Array.from(e.target.files)]);
+    }
+  };
+
+  const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress(e.target.value);
+    try {
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+        params: {
+          address: e.target.value,
+          key: 'AIzaSyCXb91AbLRImyLSiWdcq8Xf6MCnv5iQJS4'
+        }
+      });
+      if (response.data.results.length > 0) {
+        const location = response.data.results[0].geometry.location;
+        setPosition({ lat: location.lat, lng: location.lng });
+      } else {
+        console.error('No se encontraron resultados para la dirección proporcionada.');
+      }
+    } catch (error) {
+      console.error('Error al geocodificar la dirección:', error);
     }
   };
 
@@ -29,7 +57,7 @@ const ReportProperty: React.FC = () => {
             id="address"
             type="text"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={handleAddressChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
@@ -79,8 +107,15 @@ const ReportProperty: React.FC = () => {
       </form>
       <div className="p-4 bg-white shadow-md rounded mt-4">
         <h2 className="text-gray-700 text-sm font-bold mb-2">Mapa Interactivo</h2>
-        {/* Aquí puedes integrar un mapa interactivo como Google Maps */}
-        <div className="w-full h-64 bg-gray-200">Mapa</div>
+        <LoadScript googleMapsApiKey="AIzaSyCXb91AbLRImyLSiWdcq8Xf6MCnv5iQJS4">
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={position}
+            zoom={13}
+          >
+            <Marker position={position} />
+          </GoogleMap>
+        </LoadScript>
       </div>
     </div>
   );
