@@ -14,7 +14,7 @@ import LogOut from './pages/LogOut';
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-slate-100 flex flex-col">
       <Header />
       <div className="flex-grow container mx-auto p-4">
         <Routes>

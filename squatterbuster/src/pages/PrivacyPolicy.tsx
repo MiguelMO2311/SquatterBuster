@@ -3,8 +3,7 @@ import PrivacyText from '../components/PrivacyText';
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div>
-      <h1>Política de Privacidad</h1>
+    <div className='text-center justify-center py-52'>
       <PrivacyText />
     </div>
   );
